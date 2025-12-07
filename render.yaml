@@ -66,3 +66,4 @@ services:
     name: msg-redis
     region: oregon
     plan: free
+    ipAllowList: [] # Internal access only
