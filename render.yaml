@@ -62,7 +62,7 @@ services:
           name: msg-backend-api
           property: host
 
-databases:
-  - name: msg-redis
-    plan: free
+  - type: redis
+    name: msg-redis
     region: oregon
+    plan: free
