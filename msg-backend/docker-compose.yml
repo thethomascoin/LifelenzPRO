@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # The FastAPI Backend (Receives requests)
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  # The Background Worker (Does the heavy scheduling logic)
+  worker:
+    build: .
+    command: celery -A app.worker.celery worker --loglevel=info
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  # The Message Broker (Communication line between Web and Worker)
+  redis:
+    image: redis:7-alpine
