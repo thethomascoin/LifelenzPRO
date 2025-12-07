@@ -6,8 +6,7 @@ services:
     region: oregon
     plan: free
     rootDir: msg-backend
-    buildCommand: docker build -t backend .
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
+    # Dockerfile CMD is used by default. No startCommand needed for env: docker
     envVars:
       - key: CELERY_BROKER_URL
         fromService:
@@ -20,7 +19,7 @@ services:
           name: msg-redis
           property: connectionString
       - key: PORT
-        value: 10000
+        value: 8000 # Match Dockerfile uvicorn port
 
   # 2. The Background Worker (Celery)
   - type: worker
@@ -29,8 +28,7 @@ services:
     region: oregon
     plan: free
     rootDir: msg-backend
-    buildCommand: docker build -t worker .
-    startCommand: celery -A app.worker.celery worker --loglevel=info
+    # Dockerfile CMD is used by default
     envVars:
       - key: CELERY_BROKER_URL
         fromService:
@@ -57,13 +55,12 @@ services:
         fromService:
           type: web
           name: msg-backend-api
-          property: url
-      # Note: We need to suffix /generate-schedule in usage or handle base URL properly
+          property: host
       - key: NEXT_PUBLIC_PYTHON_BACKEND_URL
         fromService:
           type: web
           name: msg-backend-api
-          property: url
+          property: host
 
 databases:
   - name: msg-redis

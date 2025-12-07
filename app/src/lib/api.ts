@@ -1,7 +1,11 @@
 // app/src/lib/api.ts
 
 // Use Env Var or Fallback to localhost
-const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || 'http://localhost:8000';
+let envBackend = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || 'http://localhost:8000';
+if (envBackend && !envBackend.startsWith('http')) {
+    envBackend = `https://${envBackend}`;
+}
+const BACKEND_URL = envBackend;
 
 export interface ScheduleRequestPayload {
     store_id: string;
